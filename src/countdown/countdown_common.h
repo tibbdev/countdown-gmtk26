@@ -1,0 +1,199 @@
+#pragma once
+
+#include <stdint.h>
+#include <stdbool.h>
+#include <vector>
+
+#include "raylib.h"
+
+typedef struct STRUCT_WELCOME_DATA
+{
+    bool is_start_hovered = false;
+    bool is_start_pressed = false;
+
+    bool is_settings_hovered = false;
+    bool is_settings_pressed = false;
+
+    bool is_quit_hovered = false;
+    bool is_quit_pressed = false;
+    
+    bool is_back_hovered = false;
+    bool is_back_pressed = false;
+} WelcomeData;
+
+typedef struct STRUCT_PLAYER_DATA
+{
+    Vector2 position = {0.0f, 0.0f};
+    Vector2 velocity = {0.0f, 0.0f};
+
+    float speed = 0.2f;
+} PlayerData;
+
+typedef struct STRUCT_GAZUMPA_DATA
+{
+    Vector2 position = {0.0f, 0.0f};
+    Vector2 velocity = {0.0f, 0.0f};
+
+    Vector2 direction = {0.0f, 0.0f};
+    Vector2 target    = {0.0f, 0.0f};
+
+    float speed = 0.1f;
+} GazumpaData;
+
+enum class KligState
+{
+    CountingUp,
+    Grabbed,
+    CountingDown,
+    Safe,
+    Overloaded,
+
+    KLIG_STATE_CNT
+};
+
+enum class KligTribes
+{
+    Anstral,
+    Behanas,
+    Caboogla,
+    Denafigie,
+    Egaloop,
+    Fenagak,
+    Gedantino,
+    Helipso,
+    Isanta,
+    Jabapok,
+    Kagaroth,
+    Linta,
+    Moonag,
+    Nobani,
+    Ooodentu,
+    Pilin,
+    Quintri,
+    Relath,
+    Stoopid,
+    Thavala,
+    Ubug,
+    Vernagok,
+    Welamaji,
+    Xenarik,
+    Yelosa,
+    Zedak,
+
+    KLIG_TRIBE_CNT
+};
+
+typedef struct STRUCT_KLIG_DATA
+{
+    Vector2    position = {0.0f, 0.0f};
+    KligTribes tribe;
+    
+    bool is_grabbed = false;
+    bool is_home = false;
+
+    uint16_t count = 0;
+
+    KligState state = KligState::CountingUp;
+} KligData;
+
+typedef struct STRUCT_ZONE_DATA
+{
+    Vector2 position = {0.0f, 0.0f};
+    Vector2 size = {0.0f, 0.0f};
+
+    KligTribes tribe;
+    Color      color = RED;
+
+    enum class ZoneType
+    {
+        Home,
+        Sticky,
+        Blocker,
+
+        ZONE_TYPE_CNT
+    } type = ZoneType::Home;
+} ZoneData;
+
+typedef struct STRUCT_LEVEL_DATA
+{
+    double klig_count_rate = 1.0;
+
+    Vector2 player_start_position = {0.0f, 0.0f};
+
+    std::vector<GazumpaData> gazumpas = {};
+    std::vector<KligData>    kligs = {};
+    std::vector<ZoneData>    zones = {};
+} LevelData;
+
+enum class GameState
+{
+    Welcome,
+    Settings,
+    Playing,
+    Paused,
+    GameOver,
+    HighScores,
+
+    GAME_STATE_CNT
+};
+
+typedef struct STRUCT_GAME_SETTINGS
+{
+    bool enable_vsync  = true;
+    bool display_debug = true;
+
+    bool is_back_hovered = false;
+    bool is_back_pressed = false;
+} GameSettings;
+
+typedef struct STRUCT_GAME_USER_INTPUTS
+{
+    Vector2 mouse_position = {0.0f, 0.0f};
+    bool    mouse_left_pressed = false;
+    bool    mouse_right_pressed = false;
+
+    bool kb_grab_pressed       = false;
+    bool kb_paused_pressed     = false;
+    bool kb_move_up_pressed    = false;
+    bool kb_move_down_pressed  = false;
+    bool kb_move_left_pressed  = false;
+    bool kb_move_right_pressed = false;
+
+    Vector2 gpad_movement       = {0.0f, 0.0f};
+    bool    gpad_grab_pressed   = false;
+    bool    gpad_paused_pressed = false;
+
+    bool prev_mouse_left_pressed  = false;
+    bool prev_mouse_right_pressed = false;
+    bool prev_kb_grab_pressed     = false;
+    bool prev_kb_paused_pressed   = false;
+    bool prev_gpad_grab_pressed   = false;
+    bool prev_gpad_paused_pressed = false;
+} UserInputs;
+
+typedef struct STRUCT_GAME_DATA
+{
+    GameState state = GameState::Welcome;
+
+    UserInputs inputs;
+    UserInputs prev_inputs;
+
+    WelcomeData welcome_data;
+
+    PlayerData player;
+
+    std::vector<LevelData> levels;
+
+    uint32_t level = 0;
+    float    game_time = 0.0;
+} GameData;
+
+void back_button_draw(Vector2 position, bool is_hovered);
+void cursor_draw(Vector2 position);
+
+constexpr int CURSOR_SIZE           = 12;
+constexpr int BACK_BUTTON_HEIGHT    = 48;
+constexpr int BACK_BUTTON_WIDTH     = 96;
+constexpr int BACK_BUTTON_TEXT_SIZE = 24;
+
+extern GameSettings g_settings;
