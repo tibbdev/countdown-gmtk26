@@ -39,14 +39,14 @@ void game_init(GameData &game)
     { // Level 1 is always the same
         LevelData new_level = {};
 
-        new_level.player_start_position = { -0.6f, 0.0f };
+        new_level.player_start_position = { 400, 1024 };
 
         KligData klig = {};
-        klig.position = { 0.2f, -0.4f };
+        klig.position = { 1200, 600 };
         new_level.kligs.push_back(klig);
 
         ZoneData home_zone = {};
-        home_zone.position = { 0.6f, 0.45f };
+        home_zone.position = { 1600, 1100 };
         new_level.zones.push_back(home_zone);
 
         game.levels.push_back(new_level);

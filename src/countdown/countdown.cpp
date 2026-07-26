@@ -29,10 +29,10 @@ void countdown_update(GameData &game, float delta_time)
 
                     // world space is -1 to 1
                     Rectangle world = {};
-                    world.x         = -1;
-                    world.y         = -1;
-                    world.width     = 2;
-                    world.height    = 2;
+                    world.x         = 0;
+                    world.y         = 0;
+                    world.width     = ASSUMED_WORLD_SIZE;
+                    world.height    = ASSUMED_WORLD_SIZE;
 
                     game.player.velocity = {0.0f, 0.0f};
 
@@ -60,52 +60,53 @@ void countdown_update(GameData &game, float delta_time)
                     game.player.position.x += delta_time * game.player.velocity.x;
                     game.player.position.y += delta_time * game.player.velocity.y;
 
-                    float assumed_player_size = (float)PLAYER_SIZE / ASSUMED_WORLD_SIZE;
+                    float assumed_player_size = (float)PLAYER_SIZE;
                     float assumed_player_half = assumed_player_size * 0.5f;
 
-                    Rectangle player = {};
-                    player.x         = game.player.position.x - assumed_player_half;
-                    player.y         = game.player.position.y - assumed_player_half;
-                    player.width     = assumed_player_size;
-                    player.height    = assumed_player_size;
+                    Rectangle playerrec = {};
+                    playerrec.x         = game.player.position.x - assumed_player_half;
+                    playerrec.y         = game.player.position.y - assumed_player_half;
+                    playerrec.width     = assumed_player_size;
+                    playerrec.height    = assumed_player_size;
 
                     // Check the player is still within the world
                     // if (!CheckCollisionRecs(world, player))
                     {
-                        if (-0.99f > (game.player.position.x - assumed_player_half))
+                        if (4 > (playerrec.x - assumed_player_half))
                         {
-                            game.player.position.x = -0.99f + assumed_player_half;
+                            game.player.position.x = 4 + assumed_player_half;
                         }
-                        else if (0.99f < (game.player.position.x + assumed_player_half))
+                        else if ((ASSUMED_WORLD_SIZE - 4) < (playerrec.x + assumed_player_half))
                         {
-                            game.player.position.x = 0.99f - assumed_player_half;
+                            game.player.position.x = (ASSUMED_WORLD_SIZE - 4) - assumed_player_half;
                         }
 
-                        if (-0.99f > (game.player.position.y - assumed_player_half))
+                        if (4 > (playerrec.y - assumed_player_half))
                         {
-                            game.player.position.y = -0.99f + assumed_player_half;
+                            game.player.position.y = 4 + assumed_player_half;
                         }
-                        else if (0.99f < (game.player.position.y + assumed_player_half))
+                        else if ((ASSUMED_WORLD_SIZE - 4) < (playerrec.y + assumed_player_half))
                         {
-                            game.player.position.y = 0.99f - assumed_player_half;
+                            game.player.position.y = (ASSUMED_WORLD_SIZE - 4) - assumed_player_half;
                         }
                     }
 
                     bool player_failed = false;
+                    bool player_success = true;
 
                     for (KligData& klig : game.levels[game.level].kligs)
                     {
-                        klig.is_grabbable = CheckCollisionCircleRec(klig.position, (float)(KLIG_SIZE + 4) / ASSUMED_WORLD_SIZE, player);
+                        klig.is_grabbable = CheckCollisionCircleRec(klig.position, (float)(KLIG_SIZE + 4), playerrec);
                         klig.is_homable = false;
 
                         for (ZoneData& zone : game.levels[game.level].zones)
                         {
                             if ((ZoneData::ZoneType::Home == zone.type) && (zone.tribe == klig.tribe))
                             {
-                                float assumed_zone_size_x = (float)zone.size.x / ASSUMED_WORLD_SIZE;
+                                float assumed_zone_size_x = (float)zone.size.x;
                                 float assumed_zone_half_x = assumed_zone_size_x * 0.5f;
 
-                                float assumed_zone_size_y = (float)zone.size.y / ASSUMED_WORLD_SIZE;
+                                float assumed_zone_size_y = (float)zone.size.y;
                                 float assumed_zone_half_y = assumed_zone_size_y * 0.5f;
 
                                 Rectangle zoner = {};
@@ -114,7 +115,7 @@ void countdown_update(GameData &game, float delta_time)
                                 zoner.width = assumed_zone_size_x;
                                 zoner.height = assumed_zone_size_y;
 
-                                klig.is_homable = CheckCollisionCircleRec(klig.position, (float)(KLIG_SIZE + 4) / ASSUMED_WORLD_SIZE, zoner);
+                                klig.is_homable = CheckCollisionCircleRec(klig.position, (float)(KLIG_SIZE + 4), zoner);
                             }
                         }
 
@@ -124,6 +125,8 @@ void countdown_update(GameData &game, float delta_time)
                         switch (klig.state)
                         {
                             case KligState::CountingUp:
+                                player_success = false;
+
                                 if (game.game_time > (klig.last_count_at + game.levels[game.level].klig_count_rate))
                                 {
                                     klig.last_count_at = game.game_time;
@@ -146,7 +149,10 @@ void countdown_update(GameData &game, float delta_time)
                             case KligState::Grabbed:
                                 klig.is_grabbed = true;
 
+                                player_success = false;
+
                                 klig.position = game.player.position;
+
                                 if (game.inputs.kb_grab_pressed || game.inputs.gpad_grab_pressed)
                                 {
                                     if (klig.is_homable)
@@ -157,11 +163,12 @@ void countdown_update(GameData &game, float delta_time)
                                     {
                                         klig.state = KligState::CountingUp;
                                     }
-
                                 }
                                 break;
                             case KligState::CountingDown:
                                 klig.is_home = true;
+
+                                player_success = false;
 
                                 if (game.game_time > (klig.last_count_at + game.levels[game.level].klig_count_rate))
                                 {
@@ -172,6 +179,8 @@ void countdown_update(GameData &game, float delta_time)
                                     {
                                         klig.count = 0;
                                         klig.state = KligState::Safe;
+
+                                        game.safe_at = game.game_time;
                                     }
                                 }
 
@@ -181,7 +190,8 @@ void countdown_update(GameData &game, float delta_time)
                                 }
                                 break;
                             case KligState::Overloaded:
-                                //player_failed = true;
+                                player_failed  = true;
+                                player_success = false;
                                 break;
 
                             default:
@@ -189,7 +199,19 @@ void countdown_update(GameData &game, float delta_time)
                         }
                     }
 
-                    if (player_failed)
+                    if (player_success)
+                    {
+                        // TODO : bugfix - this breaks the game
+                        /*if (game.levels.size() > game.level + 1)
+                        {
+                            game.level++;
+                        }
+                        else
+                        {
+                            game.level = 1;
+                        }*/
+                    }
+                    else if (player_failed)
                     {
                         game.state = GameState::GameOver;
                     }
@@ -225,19 +247,16 @@ void countdown_draw(GameData &game, float delta_time)
 
     for (ZoneData& zone : game.levels[game.level].zones)
     {
-        DrawRectangle( draw_scale * (zone.position.x * ASSUMED_WORLD_SIZE + ASSUMED_WORLD_SIZE) * 0.5f, draw_scale * (zone.position.y * ASSUMED_WORLD_SIZE + ASSUMED_WORLD_SIZE) * 0.5f, draw_scale * zone.size.x, draw_scale * zone.size.y, DARKPURPLE);
+        DrawRectangle(world_draw_position.x + draw_scale * zone.position.x, world_draw_position.y + draw_scale * zone.position.y, draw_scale * zone.size.x, draw_scale * zone.size.y, DARKPURPLE);
     }
 
     // player size
     float assumed_player_size = (float)PLAYER_SIZE;
     float assumed_player_half = assumed_player_size * 0.5f;
 
-    float assumed_player_x = (ASSUMED_WORLD_SIZE * game.player.position.x + ASSUMED_WORLD_SIZE) * 0.5f;
-    float assumed_player_y = (ASSUMED_WORLD_SIZE * game.player.position.y + ASSUMED_WORLD_SIZE) * 0.5f;
-
     Rectangle player = {};
-    player.x      = world_draw_position.x + draw_scale * assumed_player_x; 
-    player.y      = world_draw_position.y + draw_scale * assumed_player_y; 
+    player.x      = world_draw_position.x + draw_scale * game.player.position.x;
+    player.y      = world_draw_position.y + draw_scale * game.player.position.y;
     player.width  = draw_scale * assumed_player_size;
     player.height = draw_scale * assumed_player_size;
 
@@ -245,8 +264,8 @@ void countdown_draw(GameData &game, float delta_time)
 
     for (KligData &klig : game.levels[game.level].kligs)
     {
-        float klig_x = draw_scale * (klig.position.x * ASSUMED_WORLD_SIZE + ASSUMED_WORLD_SIZE) * 0.5f;
-        float klig_y = draw_scale * (klig.position.y * ASSUMED_WORLD_SIZE + ASSUMED_WORLD_SIZE) * 0.5f;
+        float klig_x = world_draw_position.x + draw_scale * klig.position.x;
+        float klig_y = world_draw_position.y + draw_scale * klig.position.y;
 
         DrawCircleV({ klig_x, klig_y }, draw_scale * KLIG_SIZE, klig.is_grabbed ? PINK : PURPLE);
 

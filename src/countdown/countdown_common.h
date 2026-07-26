@@ -26,7 +26,7 @@ typedef struct STRUCT_PLAYER_DATA
     Vector2 position = {0.0f, 0.0f};
     Vector2 velocity = {0.0f, 0.0f};
 
-    float speed = 0.4f;
+    float speed = 300.0f;
 } PlayerData;
 
 typedef struct STRUCT_GAZUMPA_DATA
@@ -37,7 +37,7 @@ typedef struct STRUCT_GAZUMPA_DATA
     Vector2 direction = {0.0f, 0.0f};
     Vector2 target    = {0.0f, 0.0f};
 
-    float speed = 0.25f;
+    float speed = 200.0f;
 } GazumpaData;
 
 enum class KligState
@@ -190,7 +190,9 @@ typedef struct STRUCT_GAME_DATA
     std::vector<LevelData> levels;
 
     uint32_t level = 0;
-    float    game_time = 0.0;
+    float    game_time = 0.0f;
+
+    float    safe_at = 0.0f;
 } GameData;
 
 void back_button_draw(Vector2 position, bool is_hovered);
