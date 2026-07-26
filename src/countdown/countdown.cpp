@@ -101,7 +101,7 @@ void countdown_update(GameData &game, float delta_time)
 
                         for (ZoneData& zone : game.levels[game.level].zones)
                         {
-                            if ((ZoneData::ZoneType::Home == zone.type) && (zone.tribe == klig.tribe))
+                            if ((ZoneData::ZoneType::Home == zone.type)) // && (zone.tribe == klig.tribe))
                             {
                                 float assumed_zone_size_x = (float)zone.size.x;
                                 float assumed_zone_half_x = assumed_zone_size_x * 0.5f;
@@ -115,7 +115,7 @@ void countdown_update(GameData &game, float delta_time)
                                 zoner.width = assumed_zone_size_x;
                                 zoner.height = assumed_zone_size_y;
 
-                                klig.is_homable = CheckCollisionCircleRec(klig.position, (float)(KLIG_SIZE + 4), zoner);
+                                klig.is_homable |= CheckCollisionCircleRec(klig.position, (float)(KLIG_SIZE + 4), zoner);
                             }
                         }
 
@@ -202,10 +202,11 @@ void countdown_update(GameData &game, float delta_time)
 
                     if (game.levels[game.level].player_success)
                     {
-                         if (game.game_time > (game.safe_at + 2.0f))
+                        if (game.game_time > (game.safe_at + 2.0f))
                         {
                             game.levels[game.level].player_success = false;
                             game.level++;
+                            game.levels_completed++;
                             if (game.levels.size() <= game.level)
                             {
                                 game.level = 1;
