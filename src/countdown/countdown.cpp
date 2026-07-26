@@ -91,8 +91,8 @@ void countdown_update(GameData &game, float delta_time)
                         }
                     }
 
-                    bool player_failed = false;
-                    bool player_success = true;
+                    game.levels[game.level].player_failed  = false;
+                    game.levels[game.level].player_success = true;
 
                     for (KligData& klig : game.levels[game.level].kligs)
                     {
@@ -125,7 +125,7 @@ void countdown_update(GameData &game, float delta_time)
                         switch (klig.state)
                         {
                             case KligState::CountingUp:
-                                player_success = false;
+                                game.levels[game.level].player_success = false;
 
                                 if (game.game_time > (klig.last_count_at + game.levels[game.level].klig_count_rate))
                                 {
@@ -149,7 +149,7 @@ void countdown_update(GameData &game, float delta_time)
                             case KligState::Grabbed:
                                 klig.is_grabbed = true;
 
-                                player_success = false;
+                                game.levels[game.level].player_success = false;
 
                                 klig.position = game.player.position;
 
@@ -168,9 +168,9 @@ void countdown_update(GameData &game, float delta_time)
                             case KligState::CountingDown:
                                 klig.is_home = true;
 
-                                player_success = false;
+                                game.levels[game.level].player_success = false;
 
-                                if (game.game_time > (klig.last_count_at + game.levels[game.level].klig_count_rate))
+                                if (game.game_time > (klig.last_count_at + (game.levels[game.level].klig_count_rate * 0.6f)))
                                 {
                                     klig.last_count_at = game.game_time;
                                     klig.count--;
@@ -190,8 +190,9 @@ void countdown_update(GameData &game, float delta_time)
                                 }
                                 break;
                             case KligState::Overloaded:
-                                player_failed  = true;
-                                player_success = false;
+                                game.levels[game.level].player_failed = true;
+                                game.levels[game.level].player_success = false;
+                                game.gameover_at = game.game_time;
                                 break;
 
                             default:
@@ -199,19 +200,19 @@ void countdown_update(GameData &game, float delta_time)
                         }
                     }
 
-                    if (player_success)
+                    if (game.levels[game.level].player_success)
                     {
-                        // TODO : bugfix - this breaks the game
-                        /*if (game.levels.size() > game.level + 1)
+                         if (game.game_time > (game.safe_at + 2.0f))
                         {
+                            game.levels[game.level].player_success = false;
                             game.level++;
+                            if (game.levels.size() <= game.level)
+                            {
+                                game.level = 1;
+                            }
                         }
-                        else
-                        {
-                            game.level = 1;
-                        }*/
                     }
-                    else if (player_failed)
+                    else if (game.levels[game.level].player_failed)
                     {
                         game.state = GameState::GameOver;
                     }
@@ -225,7 +226,11 @@ void countdown_update(GameData &game, float delta_time)
             break;
         case GameState::GameOver:
             {
-                // TODO : Fill in with useful code
+                game.game_time += delta_time;
+                if (game.game_time > (game.gameover_at + 10.0f))
+                {
+                    game.state = GameState::Welcome;
+                }
             }
             break;
 
@@ -264,67 +269,65 @@ void countdown_draw(GameData &game, float delta_time)
 
     for (KligData &klig : game.levels[game.level].kligs)
     {
-        float klig_x = world_draw_position.x + draw_scale * klig.position.x;
-        float klig_y = world_draw_position.y + draw_scale * klig.position.y;
-
-        DrawCircleV({ klig_x, klig_y }, draw_scale * KLIG_SIZE, klig.is_grabbed ? PINK : PURPLE);
-
-        if (klig.is_grabbable && !klig.is_grabbed)
+        if (KligState::Safe != klig.state)
         {
-            DrawCircleLinesV({ klig_x, klig_y }, draw_scale * KLIG_SIZE, RAYWHITE);
-        }
-        else if (klig.is_homable && !klig.is_home)
-        {
-            DrawCircleLinesV({ klig_x, klig_y }, draw_scale * KLIG_SIZE, YELLOW);
-        }
+            float klig_x = world_draw_position.x + draw_scale * klig.position.x;
+            float klig_y = world_draw_position.y + draw_scale * klig.position.y;
 
-        if (!klig.is_grabbed)
-        {
-            std::stringstream klig_cnt_sstr;
-            klig_cnt_sstr << klig.count;
-            DrawText(klig_cnt_sstr.str().c_str(), 1 + klig_x - (0.5f * MeasureText(klig_cnt_sstr.str().c_str(), 0.96f * KLIG_SIZE)), 1 + klig_y - (KLIG_SIZE * 0.48f), 0.96f * KLIG_SIZE, DARKPURPLE);
+            DrawCircleV({ klig_x, klig_y }, draw_scale * KLIG_SIZE, klig.is_grabbed ? (klig.is_homable ? ORANGE : PINK) : (klig.is_grabbable ? LIME : PURPLE));
+
+            if (klig.is_grabbable && !klig.is_grabbed)
+            {
+                if (game.level < 5)
+                {
+                    DrawText("GrAB NOw!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height >> 1) - 248, 24, RAYWHITE);
+                }
+                DrawCircleLinesV({ klig_x, klig_y }, draw_scale * KLIG_SIZE, RAYWHITE);
+            }
+            else if (klig.is_homable && !klig.is_home)
+            {
+                if (game.level < 5)
+                {
+                    DrawText("REleAsE nOW!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height >> 1) - 220, 24, RAYWHITE);
+                }
+                DrawCircleLinesV({ klig_x, klig_y }, draw_scale * KLIG_SIZE, ORANGE);
+            }
+
+            if (!klig.is_grabbed)
+            {
+                std::stringstream klig_cnt_sstr;
+                klig_cnt_sstr << klig.count;
+                DrawText(klig_cnt_sstr.str().c_str(), 1 + klig_x - (0.5f * MeasureText(klig_cnt_sstr.str().c_str(), 0.96f * KLIG_SIZE)), 1 + klig_y - (KLIG_SIZE * 0.48f), 0.96f * KLIG_SIZE, DARKPURPLE);
+            }
         }
     }
 
     DrawRectangleV({ COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width, 0.0f }, { (1.0f - COUNTDOWN_DRAW_WORLD_WIDTH_RATIO)*g_window_data.width, (float)g_window_data.height }, DARKBLUE);
     
-    constexpr uint32_t DBG_FONT_SIZE = 14;
+    constexpr uint32_t FONT_SIZE = 160;
 
-    std::stringstream draw_scale_sstr;
-    draw_scale_sstr << "DRAW_SCALE := " << draw_scale;
-    DrawText(draw_scale_sstr.str().c_str(), COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 16, DBG_FONT_SIZE, WHITE);
-    
-    std::stringstream player_position_sstr;
-    player_position_sstr << "PLAYER_POSITION := {" << (uint32_t)player.x << ", " << (uint32_t)player.y << "}";
-    DrawText(player_position_sstr.str().c_str(), COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 32, DBG_FONT_SIZE, WHITE);
-    
-    std::stringstream game_player_position_sstr;
-    game_player_position_sstr << "PLAYER_POSITION := {" << game.player.position.x << ", " << game.player.position.y << "}";
-    DrawText(game_player_position_sstr.str().c_str(), COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 48, DBG_FONT_SIZE, WHITE);
+    std::stringstream gametime_sstr;
 
-    std::stringstream draw_size_sstr;
-    draw_size_sstr << "PLAYER_SIZE := " << (uint32_t)assumed_player_size;
-    DrawText(draw_size_sstr.str().c_str(), COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 64, DBG_FONT_SIZE, WHITE);
-
-    std::stringstream klig_size_sstr;
-    klig_size_sstr << "KLIG_SIZE := " << (uint32_t) KLIG_SIZE;
-    DrawText(klig_size_sstr.str().c_str(), COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 80, DBG_FONT_SIZE, WHITE);
-
-    if (0 != game.levels[game.level].kligs.size())
+    if (game.levels[game.level].player_success)
     {
-        std::stringstream klig_count_at_sstr;
-        klig_count_at_sstr << "KLIG_COUNT_AT := " << game.levels[game.level].kligs[0].last_count_at;
-        DrawText(klig_count_at_sstr.str().c_str(), COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 128, DBG_FONT_SIZE, WHITE);
+        gametime_sstr << roundf(game.safe_at * 100) * 0.01f;
+    }
+    else
+    {
+        gametime_sstr << roundf(game.game_time * 100) * 0.01f;
+    }
+    DrawText(gametime_sstr.str().c_str(), COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 16, FONT_SIZE, YELLOW);
 
-        std::stringstream klig_count_sstr;
-        klig_count_sstr << "KLIG_COUNT := " << game.levels[game.level].kligs[0].count;
-        DrawText(klig_count_sstr.str().c_str(), COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 144, DBG_FONT_SIZE, WHITE);
+    std::stringstream level_sstr;
+    level_sstr << "LeVEl " << game.level + 1;
+    DrawText(level_sstr.str().c_str(), COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 16 + (uint32_t)(FONT_SIZE * 1.1f), (uint32_t)(0.8f * FONT_SIZE), BLUE);
 
-        DrawText("Grabable", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 160, DBG_FONT_SIZE, game.levels[game.level].kligs[0].is_grabbable ? LIME : RED);
-        DrawText("Homable", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 176, DBG_FONT_SIZE, game.levels[game.level].kligs[0].is_homable ? LIME : RED);
+    DrawText("PUt aLl DoTS in TheIr HOmEs beFoRE tHeY\r\nReACh 30.", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height >> 1) - 64, 24, RAYWHITE);
+    DrawText("WHeN GReEn  : PreSS G tO GraB", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height >> 1), 24, RAYWHITE);
+    DrawText("WHeN ORaNGe : PreSS G tO rELeaSE", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height >> 1) + 28, 24, RAYWHITE);
 
-        std::stringstream klig_position_sstr;
-        klig_position_sstr << "KLIG_POSITION := {" << game.levels[game.level].kligs[0].position.x << ", " << game.levels[game.level].kligs[0].position.y << "}";
-        DrawText(klig_position_sstr.str().c_str(), COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 192, DBG_FONT_SIZE, WHITE);
+    if (game.levels[game.level].player_success)
+    {
+        DrawText("lEVeL_cOMpLetE", 1 + (g_window_data.width * 0.5f) - (0.5f * MeasureText("lEVeL_cOMpLetE", 192)), 1 + (g_window_data.height * 0.5f) - (192 * 0.48f), 192, ORANGE);
     }
 }

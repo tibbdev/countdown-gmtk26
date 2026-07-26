@@ -2,6 +2,9 @@
 #include <stddef.h>
 #include <cstdlib>
 
+#include <string>
+#include <sstream>
+
 #include "player.h"
 #include "gazumpas.h"
 #include "welcome.h"
@@ -19,7 +22,7 @@ constexpr int GO_BGRECT_BORDER_SIZE = 4;
 constexpr int GO_BACK_BUTTON_OFFSET_X = 128;
 constexpr int GO_BACK_BUTTON_OFFSET_Y = 24;
 
-constexpr uint16_t GW_N_SECTORS = 32;
+constexpr uint16_t GW_N_SECTORS = 36;
 
 void back_button_draw(Vector2 position, bool is_hovered)
 {
@@ -34,6 +37,7 @@ void cursor_draw(Vector2 position)
 
 void game_init(GameData &game)
 {
+    game.levels_completed = 0;
     game.levels.clear();
 
     { // Level 1 is always the same
@@ -68,19 +72,21 @@ void game_init(GameData &game)
         uint16_t player_sector = rand() % GW_N_SECTORS;
         sectors[player_sector] = true;
 
-        uint16_t n_kligs = (level_num % 4) + (level_num / 4);
+        // add kligs
 
+        uint16_t n_kligs = (level_num % 4) + (level_num / 4);
         if (0 == n_kligs)
         {
             n_kligs = 1;
         }
 
         new_level.kligs.clear();
+
         for (uint16_t klig_idx = 0; n_kligs > klig_idx; klig_idx++)
         {
             KligData new_klig = {};
 
-            new_klig.tribe = (KligTribes)(rand() % (uint8_t)KligTribes::KLIG_TRIBE_CNT);
+            // new_klig.tribe = (KligTribes)(rand() % (uint8_t)KligTribes::KLIG_TRIBE_CNT);
 
             uint16_t nklig_sector = rand() % GW_N_SECTORS;
 
@@ -88,7 +94,46 @@ void game_init(GameData &game)
             {
                 nklig_sector = rand() % GW_N_SECTORS;
             }
+
+            uint16_t col = nklig_sector % 6;
+            uint16_t row = nklig_sector / 6;
+
+            new_klig.position.x = col * (2048 / 6) + (2048 / 12);
+            new_klig.position.y = row * (2048 / 6) + (2048 / 12);
+
+            new_level.kligs.push_back(new_klig);
         }
+
+        // add zones
+        uint16_t n_zones = 1 + (level_num / 4);
+
+        new_level.zones.clear();
+
+        for (uint16_t klig_idx = 0; n_kligs > klig_idx; klig_idx++)
+        {
+            ZoneData new_zone = {};
+
+            new_zone.type = ZoneData::ZoneType::Home;
+
+            // new_klig.tribe = (KligTribes)(rand() % (uint8_t)KligTribes::KLIG_TRIBE_CNT);
+
+            uint16_t nzone_sector = rand() % GW_N_SECTORS;
+
+            while (sectors[nzone_sector])
+            {
+                nzone_sector = rand() % GW_N_SECTORS;
+            }
+
+            uint16_t col = nzone_sector % 6;
+            uint16_t row = nzone_sector / 6;
+
+            new_zone.position.x = col * (2048 / 6) + (2048 / 12);
+            new_zone.position.y = row * (2048 / 6) + (2048 / 12);
+
+            new_level.zones.push_back(new_zone);
+        }
+
+        game.levels.push_back(new_level);
     }
 
     game.player.position = game.levels[game.level].player_start_position;
@@ -109,6 +154,7 @@ void game_update(GameData &game, float delta_time)
             countdown_update(game, delta_time);
             break;
         case GameState::GameOver:
+            countdown_update(game, delta_time);
             break;
         // case GameState::HighScores:
         //     break;
@@ -146,6 +192,14 @@ void game_draw(GameData &game, float delta_time)
                 DrawRectangleLines(rect_position.x, rect_position.y, rect_size.x, rect_size.y, LIGHTGRAY);
 
                 DrawText("GamE_OVeR", (g_window_data.width  >> 1) - (MeasureText("GamE_OVeR", 160)  >> 1), (g_window_data.height  >> 2) - (160 >> 1), 160, RAYWHITE);
+
+                std::stringstream levels_completed_sstr;
+                levels_completed_sstr << "LEveLs_CoMPletEd " << game.levels_completed;
+                DrawText(levels_completed_sstr.str().c_str(), (g_window_data.width >> 1) - (MeasureText(levels_completed_sstr.str().c_str(), 120) >> 1), (g_window_data.height >> 1) + 50, 120, LIGHTGRAY);
+
+                std::stringstream game_time_sstr;
+                game_time_sstr << "tiMe " << roundf(game.gameover_at * 100) * 0.01f;
+                DrawText(game_time_sstr.str().c_str(), (g_window_data.width >> 1) - (MeasureText(levels_completed_sstr.str().c_str(), 120) >> 1), (g_window_data.height >> 1) + 250, 120, LIGHTGRAY);
 
                 cursor_draw(game.inputs.mouse_position);
             } 

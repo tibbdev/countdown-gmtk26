@@ -125,6 +125,9 @@ typedef struct STRUCT_LEVEL_DATA
 
     Vector2 player_start_position = {0.0f, 0.0f};
 
+    bool player_failed = false;
+    bool player_success = false;
+
     std::vector<GazumpaData> gazumpas = {};
     std::vector<KligData>    kligs = {};
     std::vector<ZoneData>    zones = {};
@@ -144,8 +147,8 @@ enum class GameState
 
 typedef struct STRUCT_GAME_SETTINGS
 {
-    bool enable_vsync  = true;
-    bool display_debug = true;
+    bool enable_vsync  = false;
+    bool display_debug = false;
 
     bool is_back_hovered = false;
     bool is_back_pressed = false;
@@ -188,11 +191,14 @@ typedef struct STRUCT_GAME_DATA
     PlayerData player;
 
     std::vector<LevelData> levels;
-
+    
     uint32_t level = 0;
     float    game_time = 0.0f;
 
-    float    safe_at = 0.0f;
+    uint32_t levels_completed = 0;
+
+    float    safe_at     = 0.0f;
+    float    gameover_at = 0.0f;
 } GameData;
 
 void back_button_draw(Vector2 position, bool is_hovered);

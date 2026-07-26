@@ -38,18 +38,28 @@ void welcome_update(float delta_time, GameData &game)
     {
         if(game.welcome_data.is_start_hovered)
         {
-            game.state      = GameState::Playing;
-            game.game_time  = 0;
-            game.level      = 0;
+            game.state            = GameState::Playing;
+            game.game_time        = 0;
+            game.level            = 0;
+            game.levels_completed = 0;
+
+            game.safe_at     = 0.0f;
+            game.gameover_at = 0.0f;
+
+            for (LevelData& level : game.levels)
+            {
+                level.player_failed  = false;
+                level.player_success = false;
+            }
 
             game.welcome_data.is_start_hovered = false;
         }
-        else if(game.welcome_data.is_settings_hovered)
+        /*else if(game.welcome_data.is_settings_hovered)
         {
             game.state = GameState::Settings;
 
             game.welcome_data.is_settings_hovered = false;
-        }
+        }*/
     }
 }
 
@@ -61,9 +71,9 @@ void welcome_draw(GameData &game)
     
     welcome_button_draw("StaRt", start_y, game.welcome_data.is_start_hovered);
     
-    start_y += BUTTON_TEXT_SIZE + BUTTON_GAP;
+    /*start_y += BUTTON_TEXT_SIZE + BUTTON_GAP;
 
-    welcome_button_draw("SeTTinGS", start_y, game.welcome_data.is_settings_hovered);
+    welcome_button_draw("SeTTinGS", start_y, game.welcome_data.is_settings_hovered);*/
 
     cursor_draw(game.inputs.mouse_position);
 }

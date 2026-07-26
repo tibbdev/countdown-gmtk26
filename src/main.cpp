@@ -60,9 +60,6 @@ int main(void)
         g_window_data.time       = GetTime();
         g_window_data.actual_fps = GetFPS();
 
-        std::stringstream time_stream;
-        time_stream << "Time: " << g_window_data.time;
-
         update_user_inputs(g_game);
 
         game_update(g_game, g_window_data.delta_time);
@@ -72,6 +69,8 @@ int main(void)
 
             if(g_settings.display_debug)
             {
+                std::stringstream time_stream;
+                time_stream << "Time: " << g_window_data.time;
                 DrawFPS(8, 8);
                 DrawText(time_stream.str().c_str(), 8, 32, 20, LIGHTGRAY);
             }
