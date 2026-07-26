@@ -26,7 +26,7 @@ typedef struct STRUCT_PLAYER_DATA
     Vector2 position = {0.0f, 0.0f};
     Vector2 velocity = {0.0f, 0.0f};
 
-    float speed = 0.2f;
+    float speed = 0.4f;
 } PlayerData;
 
 typedef struct STRUCT_GAZUMPA_DATA
@@ -37,7 +37,7 @@ typedef struct STRUCT_GAZUMPA_DATA
     Vector2 direction = {0.0f, 0.0f};
     Vector2 target    = {0.0f, 0.0f};
 
-    float speed = 0.1f;
+    float speed = 0.25f;
 } GazumpaData;
 
 enum class KligState
@@ -51,9 +51,9 @@ enum class KligState
     KLIG_STATE_CNT
 };
 
-enum class KligTribes
+enum class KligTribes : uint8_t
 {
-    Anstral,
+    Anstral = 0,
     Behanas,
     Caboogla,
     Denafigie,
@@ -82,16 +82,21 @@ enum class KligTribes
 
     KLIG_TRIBE_CNT
 };
+typedef typename std::underlying_type<KligTribes>::type uKligTribes;
 
 typedef struct STRUCT_KLIG_DATA
 {
     Vector2    position = {0.0f, 0.0f};
-    KligTribes tribe;
+    KligTribes tribe = KligTribes::Anstral;
     
     bool is_grabbed = false;
     bool is_home = false;
 
+    bool is_grabbable = false;
+    bool is_homable   = false;
+
     uint16_t count = 0;
+    float    last_count_at = 0.0f;
 
     KligState state = KligState::CountingUp;
 } KligData;
@@ -99,9 +104,9 @@ typedef struct STRUCT_KLIG_DATA
 typedef struct STRUCT_ZONE_DATA
 {
     Vector2 position = {0.0f, 0.0f};
-    Vector2 size = {0.0f, 0.0f};
+    Vector2 size = {44.0f, 44.0f};
 
-    KligTribes tribe;
+    KligTribes tribe = KligTribes::Anstral;
     Color      color = RED;
 
     enum class ZoneType
