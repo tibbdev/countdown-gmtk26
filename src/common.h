@@ -1,6 +1,8 @@
 #pragma once
 
-#define GAME_NAME "COUNTDOWN"
+#include <stdint.h>
+
+#define GAME_NAME "COUnTdoWN"
 
 typedef struct STRUCT_WINDOW_DATA
 {
