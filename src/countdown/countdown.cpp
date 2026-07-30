@@ -2,6 +2,8 @@
 #include "common.h"
 #include "settings.h"
 
+#include <math.h>
+
 #include <string>
 #include <sstream>
 
