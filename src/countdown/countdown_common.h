@@ -86,8 +86,10 @@ typedef typename std::underlying_type<KligTribes>::type uKligTribes;
 
 typedef struct STRUCT_KLIG_DATA
 {
-    Vector2    position = {0.0f, 0.0f};
+    Vector2    position       = {0.0f, 0.0f};
+    Vector2    start_position = { 0.0f, 0.0f };
     KligTribes tribe = KligTribes::Anstral;
+    Color      color;
     
     bool is_grabbed = false;
     bool is_home = false;

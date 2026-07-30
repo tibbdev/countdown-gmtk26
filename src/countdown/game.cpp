@@ -74,10 +74,16 @@ void game_init(GameData &game)
 
         // add kligs
 
-        uint16_t n_kligs = (level_num % 4) + (level_num / 4);
-        if (0 == n_kligs)
+        uint16_t n_kligs = 1 + (level_num / 3);
+
+        std::vector<KligTribes> tribes = {};
+
+        tribes.clear();
+        tribes.push_back((KligTribes)(rand() % (uint8_t)KligTribes::KLIG_TRIBE_CNT));
+
+        for (uint16_t tribe_idx = 0; (n_kligs / 2) > tribe_idx; tribe_idx++)
         {
-            n_kligs = 1;
+            tribes.push_back((KligTribes)(rand() % (uint8_t)KligTribes::KLIG_TRIBE_CNT));
         }
 
         new_level.kligs.clear();
@@ -86,7 +92,34 @@ void game_init(GameData &game)
         {
             KligData new_klig = {};
 
-            // new_klig.tribe = (KligTribes)(rand() % (uint8_t)KligTribes::KLIG_TRIBE_CNT);
+            uint16_t tribe_idx = rand() % (uint8_t)tribes.size();
+
+            new_klig.tribe = tribes[tribe_idx];
+
+            if (0 == tribe_idx)
+            {
+                new_klig.color = RED;
+            }
+            else if (1 == tribe_idx)
+            {
+                new_klig.color = DARKBLUE;
+            }
+            else if (2 == tribe_idx)
+            {
+                new_klig.color = DARKPURPLE;
+            }
+            else if (3 == tribe_idx)
+            {
+                new_klig.color = BROWN;
+            }
+            else if (4 == tribe_idx)
+            {
+                new_klig.color = BLACK;
+            }
+            else
+            {
+                new_klig.color = VIOLET;
+            }
 
             uint16_t nklig_sector = rand() % GW_N_SECTORS;
 
@@ -98,24 +131,52 @@ void game_init(GameData &game)
             uint16_t col = nklig_sector % 6;
             uint16_t row = nklig_sector / 6;
 
-            new_klig.position.x = col * (2048 / 6) + (2048 / 12);
-            new_klig.position.y = row * (2048 / 6) + (2048 / 12);
+
+            new_klig.start_position.x = col * (2048 / 6) + (2048 / 12);
+            new_klig.start_position.y = row * (2048 / 6) + (2048 / 12);
+
+            new_klig.position = new_klig.start_position;
 
             new_level.kligs.push_back(new_klig);
         }
 
         // add zones
-        uint16_t n_zones = 1 + (level_num / 4);
+        uint16_t n_zones = tribes.size();
 
         new_level.zones.clear();
 
-        for (uint16_t klig_idx = 0; n_kligs > klig_idx; klig_idx++)
+        for (uint16_t zone_idx = 0; n_zones > zone_idx; zone_idx++)
         {
             ZoneData new_zone = {};
 
             new_zone.type = ZoneData::ZoneType::Home;
 
-            // new_klig.tribe = (KligTribes)(rand() % (uint8_t)KligTribes::KLIG_TRIBE_CNT);
+            new_zone.tribe = tribes[zone_idx];
+
+            if (0 == zone_idx)
+            {
+                new_zone.color = RED;
+            }
+            else if (1 == zone_idx)
+            {
+                new_zone.color = DARKBLUE;
+            }
+            else if (2 == zone_idx)
+            {
+                new_zone.color = DARKPURPLE;
+            }
+            else if (3 == zone_idx)
+            {
+                new_zone.color = BROWN;
+            }
+            else if (4 == zone_idx)
+            {
+                new_zone.color = BLACK;
+            }
+            else
+            {
+                new_zone.color = VIOLET;
+            }
 
             uint16_t nzone_sector = rand() % GW_N_SECTORS;
 

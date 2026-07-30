@@ -101,7 +101,7 @@ void countdown_update(GameData &game, float delta_time)
 
                         for (ZoneData& zone : game.levels[game.level].zones)
                         {
-                            if ((ZoneData::ZoneType::Home == zone.type)) // && (zone.tribe == klig.tribe))
+                            if ((ZoneData::ZoneType::Home == zone.type) && (zone.tribe == klig.tribe))
                             {
                                 float assumed_zone_size_x = (float)zone.size.x;
                                 float assumed_zone_half_x = assumed_zone_size_x * 0.5f;
@@ -135,7 +135,7 @@ void countdown_update(GameData &game, float delta_time)
 
                                     if (30 < klig.count)
                                     {
-                                        //player_failed = true;
+                                        // player_failed = true;
 
                                         klig.count = 30;
                                         klig.state = KligState::Overloaded; // Game over condition...
@@ -202,11 +202,13 @@ void countdown_update(GameData &game, float delta_time)
 
                     if (game.levels[game.level].player_success)
                     {
-                        if (game.game_time > (game.safe_at + 2.0f))
+                        if (game.game_time > (game.safe_at + 1.6f))
                         {
+                            game.player.position                   = game.levels[game.level].player_start_position;
                             game.levels[game.level].player_success = false;
                             game.level++;
                             game.levels_completed++;
+
                             if (game.levels.size() <= game.level)
                             {
                                 game.level = 1;
@@ -253,7 +255,10 @@ void countdown_draw(GameData &game, float delta_time)
 
     for (ZoneData& zone : game.levels[game.level].zones)
     {
-        DrawRectangle(world_draw_position.x + draw_scale * zone.position.x, world_draw_position.y + draw_scale * zone.position.y, draw_scale * zone.size.x, draw_scale * zone.size.y, DARKPURPLE);
+        if (ZoneData::ZoneType::Home == zone.type)
+        {
+            DrawRectangle(world_draw_position.x + draw_scale * zone.position.x, world_draw_position.y + draw_scale * zone.position.y, draw_scale * zone.size.x, draw_scale * zone.size.y, zone.color);
+        }
     }
 
     // player size
@@ -261,8 +266,8 @@ void countdown_draw(GameData &game, float delta_time)
     float assumed_player_half = assumed_player_size * 0.5f;
 
     Rectangle player = {};
-    player.x      = world_draw_position.x + draw_scale * game.player.position.x;
-    player.y      = world_draw_position.y + draw_scale * game.player.position.y;
+    player.x      = world_draw_position.x + draw_scale * game.player.position.x - draw_scale * (PLAYER_SIZE >> 1);
+    player.y      = world_draw_position.y + draw_scale * game.player.position.y - draw_scale * (PLAYER_SIZE >> 1);
     player.width  = draw_scale * assumed_player_size;
     player.height = draw_scale * assumed_player_size;
 
@@ -275,7 +280,20 @@ void countdown_draw(GameData &game, float delta_time)
             float klig_x = world_draw_position.x + draw_scale * klig.position.x;
             float klig_y = world_draw_position.y + draw_scale * klig.position.y;
 
-            DrawCircleV({ klig_x, klig_y }, draw_scale * KLIG_SIZE, klig.is_grabbed ? (klig.is_homable ? ORANGE : PINK) : (klig.is_grabbable ? LIME : PURPLE));
+            Color tribe_colour = WHITE;
+
+            for (auto& zone : game.levels[game.level].zones)
+            {
+                if (zone.tribe == klig.tribe)
+                {
+                    tribe_colour = zone.color;
+                    break;
+                }
+            }
+
+            Color klig_colour_to_draw = klig.is_grabbed ? (klig.is_homable ? ORANGE : PINK) : (klig.is_grabbable ? LIME : tribe_colour);
+
+            DrawCircleV({ klig_x, klig_y }, draw_scale * KLIG_SIZE, klig_colour_to_draw);
 
             if (klig.is_grabbable && !klig.is_grabbed)
             {
@@ -283,15 +301,23 @@ void countdown_draw(GameData &game, float delta_time)
                 {
                     DrawText("GrAB NOw!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height >> 1) - 248, 24, RAYWHITE);
                 }
-                DrawCircleLinesV({ klig_x, klig_y }, draw_scale * KLIG_SIZE, RAYWHITE);
+
+                DrawCircleLinesV({ klig_x, klig_y }, (draw_scale * KLIG_SIZE),     klig.color);
+                DrawCircleLinesV({ klig_x, klig_y }, (draw_scale * KLIG_SIZE) + 1, klig.color);
+
+                DrawCircleLinesV({ klig_x, klig_y }, 2 + draw_scale * KLIG_SIZE, DARKGREEN);
             }
             else if (klig.is_homable && !klig.is_home)
             {
                 if (game.level < 5)
                 {
-                    DrawText("REleAsE nOW!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height >> 1) - 220, 24, RAYWHITE);
+                    DrawText("REleAsE nOW!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height >> 1) - 220, 24, DARKBLUE);
                 }
-                DrawCircleLinesV({ klig_x, klig_y }, draw_scale * KLIG_SIZE, ORANGE);
+
+                DrawCircleLinesV({ klig_x, klig_y }, (draw_scale * KLIG_SIZE), klig.color);
+                DrawCircleLinesV({ klig_x, klig_y }, (draw_scale * KLIG_SIZE) + 1, klig.color);
+
+                DrawCircleLinesV({ klig_x, klig_y }, 2 + draw_scale * KLIG_SIZE, DARKBROWN);
             }
 
             if (!klig.is_grabbed)

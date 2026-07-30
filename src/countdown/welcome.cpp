@@ -50,6 +50,13 @@ void welcome_update(float delta_time, GameData &game)
             {
                 level.player_failed  = false;
                 level.player_success = false;
+
+                for (KligData& klig : level.kligs)
+                {
+                    klig.state         = KligState::CountingUp;
+                    klig.count         = 0;
+                    klig.last_count_at = 0.0f;
+                }
             }
 
             game.welcome_data.is_start_hovered = false;
@@ -74,6 +81,8 @@ void welcome_draw(GameData &game)
     /*start_y += BUTTON_TEXT_SIZE + BUTTON_GAP;
 
     welcome_button_draw("SeTTinGS", start_y, game.welcome_data.is_settings_hovered);*/
+
+    DrawText("prESs_tHE_EScApe_KEy_tO_QUIt", (g_window_data.width >> 1) - (MeasureText("prESs_tHE_EScApe_KEy_tO_QUIt", WELCOME_TEXT_SIZE) >> 1), g_window_data.height - (g_window_data.height >> 2) - (WELCOME_TEXT_SIZE >> 1), WELCOME_TEXT_SIZE, RAYWHITE);
 
     cursor_draw(game.inputs.mouse_position);
 }
