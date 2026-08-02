@@ -39,7 +39,7 @@ void settings_draw(GameData &game)
 
     DrawRectangleV(rect_position, rect_size, DARKPURPLE);
 
-    DrawText("SeTTinGS", (g_window_data.width  >> 1) - (MeasureText("SeTTinGS", SETTINGS_TEXT_SIZE)  >> 1), (g_window_data.height  >> 2) - (SETTINGS_TEXT_SIZE >> 1), SETTINGS_TEXT_SIZE, MAGENTA);
+    DrawText("SeTTinGS", (g_window_data.width  * 0.5f) - (MeasureText("SeTTinGS", SETTINGS_TEXT_SIZE)  * 0.5f), (g_window_data.height  * 0.33f) - (SETTINGS_TEXT_SIZE * 0.5f), SETTINGS_TEXT_SIZE, MAGENTA);
 
     back_button_draw({rect_position.x + rect_size.x - BACK_BUTTON_OFFSET_X, rect_position.y + BACK_BUTTON_OFFSET_Y}, g_settings.is_back_hovered);
     

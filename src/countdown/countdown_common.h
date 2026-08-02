@@ -125,7 +125,7 @@ typedef struct STRUCT_LEVEL_DATA
 {
     double klig_count_rate = 1.0;
 
-    Vector2 player_start_position = {0.0f, 0.0f};
+    Vector2 player_start_position = {42.0f, 420.0f};
 
     bool player_failed = false;
     bool player_success = false;
@@ -206,9 +206,14 @@ typedef struct STRUCT_GAME_DATA
 void back_button_draw(Vector2 position, bool is_hovered);
 void cursor_draw(Vector2 position);
 
-constexpr int CURSOR_SIZE           = 12;
-constexpr int BACK_BUTTON_HEIGHT    = 48;
-constexpr int BACK_BUTTON_WIDTH     = 96;
-constexpr int BACK_BUTTON_TEXT_SIZE = 24;
+constexpr uint32_t CURSOR_SIZE                = 12;
+constexpr uint32_t BACK_BUTTON_HEIGHT         = 48;
+constexpr uint32_t BACK_BUTTON_WIDTH          = 96;
+constexpr uint32_t BACK_BUTTON_TEXT_SIZE      = 24;
+constexpr uint32_t ASSUMED_WORLD_SIZE         = 2048;
+constexpr uint32_t COUNTDOWN_DRAW_WRLD_BORDER = 64;
+constexpr uint32_t PLAYER_SIZE                = 32;
+constexpr uint32_t GAZUMPA_SIZE               = 24;
+constexpr uint32_t KLIG_SIZE                  = 10;
 
 extern GameSettings g_settings;

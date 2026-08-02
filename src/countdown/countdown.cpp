@@ -9,11 +9,6 @@
 
 constexpr float COUNTDOWN_DRAW_WORLD_WIDTH_RATIO = 0.7f;
 
-constexpr uint32_t ASSUMED_WORLD_SIZE         = 2048;
-constexpr uint32_t COUNTDOWN_DRAW_WRLD_BORDER = 64;
-constexpr uint32_t PLAYER_SIZE                = 32;
-constexpr uint32_t GAZUMPA_SIZE               = 24;
-constexpr uint32_t KLIG_SIZE                  = 10;
 
 void countdown_update(GameData &game, float delta_time)
 {
@@ -74,20 +69,20 @@ void countdown_update(GameData &game, float delta_time)
                     // Check the player is still within the world
                     // if (!CheckCollisionRecs(world, player))
                     {
-                        if (4 > (playerrec.x - assumed_player_half))
+                        if ((4 > (playerrec.x - assumed_player_half)) && (0 > game.player.velocity.x))
                         {
                             game.player.position.x = 4 + assumed_player_half;
                         }
-                        else if ((ASSUMED_WORLD_SIZE - 4) < (playerrec.x + assumed_player_half))
+                        else if (((ASSUMED_WORLD_SIZE - 4) < (playerrec.x + assumed_player_half)) && (0 < game.player.velocity.x))
                         {
                             game.player.position.x = (ASSUMED_WORLD_SIZE - 4) - assumed_player_half;
                         }
 
-                        if (4 > (playerrec.y - assumed_player_half))
+                        if ((4 > (playerrec.y - assumed_player_half)) && (0 > game.player.velocity.y))
                         {
                             game.player.position.y = 4 + assumed_player_half;
                         }
-                        else if ((ASSUMED_WORLD_SIZE - 4) < (playerrec.y + assumed_player_half))
+                        else if (((ASSUMED_WORLD_SIZE - 4) < (playerrec.y + assumed_player_half)) && (0 < game.player.velocity.y))
                         {
                             game.player.position.y = (ASSUMED_WORLD_SIZE - 4) - assumed_player_half;
                         }
@@ -251,6 +246,8 @@ void countdown_draw(GameData &game, float delta_time)
 
     Vector2 world_draw_position = {((COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width) - world_draw_space) / 2 , (g_window_data.height - world_draw_space) / 2};
 
+    DrawRectangleV({ COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width, 0.0f }, { (1.0f - COUNTDOWN_DRAW_WORLD_WIDTH_RATIO) * g_window_data.width, (float)g_window_data.height }, DARKBLUE);
+
     DrawRectangleV(world_draw_position, {world_draw_space, world_draw_space}, DARKGRAY);
 
     float draw_scale = world_draw_space / ASSUMED_WORLD_SIZE;
@@ -268,8 +265,8 @@ void countdown_draw(GameData &game, float delta_time)
     float assumed_player_half = assumed_player_size * 0.5f;
 
     Rectangle player = {};
-    player.x      = world_draw_position.x + draw_scale * game.player.position.x - draw_scale * (PLAYER_SIZE >> 1);
-    player.y      = world_draw_position.y + draw_scale * game.player.position.y - draw_scale * (PLAYER_SIZE >> 1);
+    player.x      = world_draw_position.x + draw_scale * game.player.position.x - draw_scale * (PLAYER_SIZE * 0.5f);
+    player.y      = world_draw_position.y + draw_scale * game.player.position.y - draw_scale * (PLAYER_SIZE * 0.5f);
     player.width  = draw_scale * assumed_player_size;
     player.height = draw_scale * assumed_player_size;
 
@@ -301,7 +298,7 @@ void countdown_draw(GameData &game, float delta_time)
             {
                 if (game.level < 5)
                 {
-                    DrawText("GrAB NOw!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height >> 1) - 248, 24, RAYWHITE);
+                    DrawText("GrAB NOw!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f) - 248, 24, RAYWHITE);
                 }
 
                 DrawCircleLinesV({ klig_x, klig_y }, (draw_scale * KLIG_SIZE),     klig.color);
@@ -313,7 +310,7 @@ void countdown_draw(GameData &game, float delta_time)
             {
                 if (game.level < 5)
                 {
-                    DrawText("REleAsE nOW!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height >> 1) - 220, 24, DARKBLUE);
+                    DrawText("REleAsE nOW!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f) - 220, 24, DARKBLUE);
                 }
 
                 DrawCircleLinesV({ klig_x, klig_y }, (draw_scale * KLIG_SIZE), klig.color);
@@ -330,8 +327,6 @@ void countdown_draw(GameData &game, float delta_time)
             }
         }
     }
-
-    DrawRectangleV({ COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width, 0.0f }, { (1.0f - COUNTDOWN_DRAW_WORLD_WIDTH_RATIO)*g_window_data.width, (float)g_window_data.height }, DARKBLUE);
     
     constexpr uint32_t FONT_SIZE = 160;
 
@@ -351,9 +346,9 @@ void countdown_draw(GameData &game, float delta_time)
     level_sstr << "LeVEl " << game.level + 1;
     DrawText(level_sstr.str().c_str(), COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 16 + (uint32_t)(FONT_SIZE * 1.1f), (uint32_t)(0.8f * FONT_SIZE), BLUE);
 
-    DrawText("PUt aLl DoTS in TheIr HOmEs beFoRE tHeY\r\nReACh 30.", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height >> 1) - 64, 24, RAYWHITE);
-    DrawText("WHeN GReEn  : PreSS G tO GraB", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height >> 1), 24, RAYWHITE);
-    DrawText("WHeN ORaNGe : PreSS G tO rELeaSE", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height >> 1) + 28, 24, RAYWHITE);
+    DrawText("PUt aLl DoTS in TheIr HOmEs beFoRE tHeY\r\nReACh 30.", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f) - 64, 24, RAYWHITE);
+    DrawText("WHeN GReEn  : PreSS G tO GraB", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f), 24, RAYWHITE);
+    DrawText("WHeN ORaNGe : PreSS G tO rELeaSE", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f) + 28, 24, RAYWHITE);
 
     if (game.levels[game.level].player_success)
     {

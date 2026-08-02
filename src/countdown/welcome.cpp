@@ -13,26 +13,26 @@ constexpr int BUTTON_RECT_WIDTH = 360;
 
 void welcome_button_draw(const char *text, int y, bool is_hovered)
 {
-    DrawRectangle((g_window_data.width >> 1) - (BUTTON_RECT_WIDTH >> 1), y - 8, BUTTON_RECT_WIDTH, BUTTON_TEXT_SIZE + 16, is_hovered ? LIME : DARKGREEN);
+    DrawRectangle((g_window_data.width * 0.5f) - (BUTTON_RECT_WIDTH * 0.5f), y - 8, BUTTON_RECT_WIDTH, BUTTON_TEXT_SIZE + 16, is_hovered ? LIME : DARKGREEN);
     
     if(is_hovered)
     {
-        DrawCircle((g_window_data.width >> 1) - (BUTTON_RECT_WIDTH >> 1) - BUTTON_GAP, y + (BUTTON_TEXT_SIZE >> 1), 16, LIME);
-        DrawCircle((g_window_data.width >> 1) + (BUTTON_RECT_WIDTH >> 1) + BUTTON_GAP, y + (BUTTON_TEXT_SIZE >> 1), 16, LIME);
+        DrawCircle((g_window_data.width * 0.5f) - (BUTTON_RECT_WIDTH * 0.5f) - BUTTON_GAP, y + (BUTTON_TEXT_SIZE * 0.5f), 16, LIME);
+        DrawCircle((g_window_data.width * 0.5f) + (BUTTON_RECT_WIDTH * 0.5f) + BUTTON_GAP, y + (BUTTON_TEXT_SIZE * 0.5f), 16, LIME);
     }
     
-    DrawText(text, (g_window_data.width  >> 1) - (MeasureText(text, BUTTON_TEXT_SIZE)  >> 1), y, BUTTON_TEXT_SIZE, is_hovered ? RAYWHITE : LIME);
+    DrawText(text, (g_window_data.width  * 0.5f) - (MeasureText(text, BUTTON_TEXT_SIZE)  * 0.5f), y, BUTTON_TEXT_SIZE, is_hovered ? RAYWHITE : LIME);
 }
 
 void welcome_update(float delta_time, GameData &game)
 {
-    int start_y = (g_window_data.height >> 1) - (BUTTON_TEXT_SIZE >> 1);
+    int start_y = (g_window_data.height * 0.5f) - (BUTTON_TEXT_SIZE * 0.5f);
 
-    game.welcome_data.is_start_hovered = CheckCollisionCircleRec(game.inputs.mouse_position, CURSOR_SIZE, {(float)((g_window_data.width >> 1) - (BUTTON_RECT_WIDTH >> 1)), (float)(start_y - 8), (float)BUTTON_RECT_WIDTH, (float)(BUTTON_TEXT_SIZE + 16)});
+    game.welcome_data.is_start_hovered = CheckCollisionCircleRec(game.inputs.mouse_position, CURSOR_SIZE, {(float)((g_window_data.width * 0.5f) - (BUTTON_RECT_WIDTH * 0.5f)), (float)(start_y - 8), (float)BUTTON_RECT_WIDTH, (float)(BUTTON_TEXT_SIZE + 16)});
     
     start_y += BUTTON_TEXT_SIZE + BUTTON_GAP;
 
-    game.welcome_data.is_settings_hovered = CheckCollisionCircleRec(game.inputs.mouse_position, CURSOR_SIZE, {(float)((g_window_data.width >> 1) - (BUTTON_RECT_WIDTH >> 1)), (float)(start_y - 8), (float)BUTTON_RECT_WIDTH, (float)(BUTTON_TEXT_SIZE + 16)});
+    game.welcome_data.is_settings_hovered = CheckCollisionCircleRec(game.inputs.mouse_position, CURSOR_SIZE, {(float)((g_window_data.width * 0.5f) - (BUTTON_RECT_WIDTH * 0.5f)), (float)(start_y - 8), (float)BUTTON_RECT_WIDTH, (float)(BUTTON_TEXT_SIZE + 16)});
 
     if(game.inputs.mouse_left_pressed)
     {
@@ -72,9 +72,9 @@ void welcome_update(float delta_time, GameData &game)
 
 void welcome_draw(GameData &game)
 {
-    DrawText("COUnTdoWN", (g_window_data.width  >> 1) - (MeasureText("COUnTdoWN", WELCOME_TEXT_SIZE)  >> 1), (g_window_data.height  >> 2) - (WELCOME_TEXT_SIZE >> 1), WELCOME_TEXT_SIZE, LIME);
+    DrawText("COUnTdoWN", (g_window_data.width  * 0.5f) - (MeasureText("COUnTdoWN", WELCOME_TEXT_SIZE)  * 0.5f), (g_window_data.height  * 0.33f) - (WELCOME_TEXT_SIZE * 0.5f), WELCOME_TEXT_SIZE, LIME);
 
-    int start_y = (g_window_data.height >> 1) - (BUTTON_TEXT_SIZE >> 1);
+    int start_y = (g_window_data.height * 0.5f) - (BUTTON_TEXT_SIZE * 0.5f);
     
     welcome_button_draw("StaRt", start_y, game.welcome_data.is_start_hovered);
     
@@ -82,7 +82,7 @@ void welcome_draw(GameData &game)
 
     welcome_button_draw("SeTTinGS", start_y, game.welcome_data.is_settings_hovered);*/
 
-    DrawText("prESs_tHE_EScApe_KEy_tO_QUIt", (g_window_data.width >> 1) - (MeasureText("prESs_tHE_EScApe_KEy_tO_QUIt", WELCOME_TEXT_SIZE) >> 1), g_window_data.height - (g_window_data.height >> 2) - (WELCOME_TEXT_SIZE >> 1), WELCOME_TEXT_SIZE, RAYWHITE);
+    DrawText("prESs_tHE_EScApe_KEy_tO_QUIt", (g_window_data.width * 0.5f) - (MeasureText("prESs_tHE_EScApe_KEy_tO_QUIt", WELCOME_TEXT_SIZE) * 0.5f), g_window_data.height - (g_window_data.height * 0.33f) - (WELCOME_TEXT_SIZE * 0.5f), WELCOME_TEXT_SIZE, RAYWHITE);
 
     cursor_draw(game.inputs.mouse_position);
 }

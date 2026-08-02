@@ -28,7 +28,7 @@ constexpr uint16_t GW_N_SECTORS = 36;
 void back_button_draw(Vector2 position, bool is_hovered)
 {
     DrawRectangleV(position, {BACK_BUTTON_WIDTH, BACK_BUTTON_HEIGHT}, ORANGE);
-    DrawText("BAcK", position.x + (BACK_BUTTON_WIDTH >> 1) - (MeasureText("BAcK", BACK_BUTTON_TEXT_SIZE) >> 1), position.y + (BACK_BUTTON_HEIGHT >> 1) - (BACK_BUTTON_TEXT_SIZE >> 1), BACK_BUTTON_TEXT_SIZE, is_hovered ? YELLOW : BLACK);
+    DrawText("BAcK", position.x + (BACK_BUTTON_WIDTH * 0.5f) - (MeasureText("BAcK", BACK_BUTTON_TEXT_SIZE) * 0.5f), position.y + (BACK_BUTTON_HEIGHT * 0.5f) - (BACK_BUTTON_TEXT_SIZE * 0.5f), BACK_BUTTON_TEXT_SIZE, is_hovered ? YELLOW : BLACK);
 }
 
 void cursor_draw(Vector2 position)
@@ -44,14 +44,14 @@ void game_init(GameData &game)
     { // Level 1 is always the same
         LevelData new_level = {};
 
-        new_level.player_start_position = { 400, 1024 };
+        new_level.player_start_position = { 0.2f * ASSUMED_WORLD_SIZE, 0.45f * ASSUMED_WORLD_SIZE };
 
         KligData klig = {};
-        klig.position = { 1200, 600 };
+        klig.position = { 0.6f * ASSUMED_WORLD_SIZE, 0.33f * ASSUMED_WORLD_SIZE };
         new_level.kligs.push_back(klig);
 
         ZoneData home_zone = {};
-        home_zone.position = { 1600, 1100 };
+        home_zone.position = { 0.8f * ASSUMED_WORLD_SIZE, 0.78f * ASSUMED_WORLD_SIZE };
         new_level.zones.push_back(home_zone);
 
         game.levels.push_back(new_level);
@@ -133,8 +133,8 @@ void game_init(GameData &game)
             uint16_t row = nklig_sector / 6;
 
 
-            new_klig.start_position.x = col * (2048 / 6) + (2048 / 12);
-            new_klig.start_position.y = row * (2048 / 6) + (2048 / 12);
+            new_klig.start_position.x = col * (ASSUMED_WORLD_SIZE / 6) + (ASSUMED_WORLD_SIZE / 12);
+            new_klig.start_position.y = row * (ASSUMED_WORLD_SIZE / 6) + (ASSUMED_WORLD_SIZE / 12);
 
             new_klig.position = new_klig.start_position;
 
@@ -189,8 +189,8 @@ void game_init(GameData &game)
             uint16_t col = nzone_sector % 6;
             uint16_t row = nzone_sector / 6;
 
-            new_zone.position.x = col * (2048 / 6) + (2048 / 12);
-            new_zone.position.y = row * (2048 / 6) + (2048 / 12);
+            new_zone.position.x = col * (ASSUMED_WORLD_SIZE / 6) + (ASSUMED_WORLD_SIZE / 12);
+            new_zone.position.y = row * (ASSUMED_WORLD_SIZE / 6) + (ASSUMED_WORLD_SIZE / 12);
 
             new_level.zones.push_back(new_zone);
         }
@@ -253,15 +253,15 @@ void game_draw(GameData &game, float delta_time)
                 DrawRectangleV(rect_position, rect_size, DARKGRAY);
                 DrawRectangleLines(rect_position.x, rect_position.y, rect_size.x, rect_size.y, LIGHTGRAY);
 
-                DrawText("GamE_OVeR", (g_window_data.width  >> 1) - (MeasureText("GamE_OVeR", 160)  >> 1), (g_window_data.height  >> 2) - (160 >> 1), 160, RAYWHITE);
+                DrawText("GamE_OVeR", (g_window_data.width  * 0.5f) - (MeasureText("GamE_OVeR", 160)  * 0.5f), (g_window_data.height  * 0.33f) - (160 * 0.5f), 160, RAYWHITE);
 
                 std::stringstream levels_completed_sstr;
                 levels_completed_sstr << "LEveLs_CoMPletEd " << game.levels_completed;
-                DrawText(levels_completed_sstr.str().c_str(), (g_window_data.width >> 1) - (MeasureText(levels_completed_sstr.str().c_str(), 120) >> 1), (g_window_data.height >> 1) + 50, 120, LIGHTGRAY);
+                DrawText(levels_completed_sstr.str().c_str(), (g_window_data.width * 0.5f) - (MeasureText(levels_completed_sstr.str().c_str(), 120) * 0.5f), (g_window_data.height * 0.5f) + 50, 120, LIGHTGRAY);
 
                 std::stringstream game_time_sstr;
                 game_time_sstr << "tiMe " << roundf(game.gameover_at * 100) * 0.01f;
-                DrawText(game_time_sstr.str().c_str(), (g_window_data.width >> 1) - (MeasureText(levels_completed_sstr.str().c_str(), 120) >> 1), (g_window_data.height >> 1) + 250, 120, LIGHTGRAY);
+                DrawText(game_time_sstr.str().c_str(), (g_window_data.width * 0.5f) - (MeasureText(levels_completed_sstr.str().c_str(), 120) * 0.5f), (g_window_data.height * 0.5f) + 250, 120, LIGHTGRAY);
 
                 cursor_draw(game.inputs.mouse_position);
             } 
