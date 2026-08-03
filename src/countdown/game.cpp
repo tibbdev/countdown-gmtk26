@@ -94,6 +94,11 @@ void game_init(GameData &game)
             KligData new_klig = {};
 
             uint16_t tribe_idx = rand() % (uint8_t)tribes.size();
+            
+            if (klig_idx < tribes.size())
+            {
+                tribe_idx = klig_idx;
+            }
 
             new_klig.tribe = tribes[tribe_idx];
 

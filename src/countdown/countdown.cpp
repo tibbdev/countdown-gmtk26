@@ -9,7 +9,6 @@
 
 constexpr float COUNTDOWN_DRAW_WORLD_WIDTH_RATIO = 0.7f;
 
-
 void countdown_update(GameData &game, float delta_time)
 {
     switch (game.state)
@@ -272,12 +271,16 @@ void countdown_draw(GameData &game, float delta_time)
 
     DrawRectangleRec(player, RAYWHITE);
 
+    uint16_t unsafe_kligs = 0;
+
     for (KligData &klig : game.levels[game.level].kligs)
     {
         if (KligState::Safe != klig.state)
         {
             float klig_x = world_draw_position.x + draw_scale * klig.position.x;
             float klig_y = world_draw_position.y + draw_scale * klig.position.y;
+
+            unsafe_kligs++;
 
             Color tribe_colour = WHITE;
 
@@ -298,7 +301,7 @@ void countdown_draw(GameData &game, float delta_time)
             {
                 if (game.level < 5)
                 {
-                    DrawText("GrAB NOw!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f) - 248, 24, RAYWHITE);
+                    DrawText("GrAB NOw!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f) - 248, 24, LIME);
                 }
 
                 DrawCircleLinesV({ klig_x, klig_y }, (draw_scale * KLIG_SIZE),     klig.color);
@@ -310,7 +313,7 @@ void countdown_draw(GameData &game, float delta_time)
             {
                 if (game.level < 5)
                 {
-                    DrawText("REleAsE nOW!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f) - 220, 24, DARKBLUE);
+                    DrawText("REleAsE nOW!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f) - 220, 24, ORANGE);
                 }
 
                 DrawCircleLinesV({ klig_x, klig_y }, (draw_scale * KLIG_SIZE), klig.color);
@@ -346,7 +349,13 @@ void countdown_draw(GameData &game, float delta_time)
     level_sstr << "LeVEl " << game.level + 1;
     DrawText(level_sstr.str().c_str(), COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 16 + (uint32_t)(FONT_SIZE * 1.1f), (uint32_t)(0.8f * FONT_SIZE), BLUE);
 
-    DrawText("PUt aLl DoTS in TheIr HOmEs beFoRE tHeY\r\nReACh 30.", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f) - 64, 24, RAYWHITE);
+    std::stringstream unsafe_cnt_sstr;
+    unsafe_cnt_sstr << "uNSafE_kLIgS " << unsafe_kligs;
+    DrawText(unsafe_cnt_sstr.str().c_str(), COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, 16 + (uint32_t)(FONT_SIZE * 2.0f), 36, MAGENTA);
+
+    DrawText("PUt aLl DoTS in TheIr HOmEs beFoRE", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f) - 64, 24, RAYWHITE);
+    DrawText("tHeY ReACh 30.", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f) - 34, 24, RAYWHITE);
+
     DrawText("WHeN GReEn  : PreSS G tO GraB", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f), 24, RAYWHITE);
     DrawText("WHeN ORaNGe : PreSS G tO rELeaSE", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f) + 28, 24, RAYWHITE);
 
