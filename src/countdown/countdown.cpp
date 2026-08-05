@@ -279,6 +279,7 @@ void countdown_draw(GameData &game, float delta_time)
         {
             float klig_x = world_draw_position.x + draw_scale * klig.position.x;
             float klig_y = world_draw_position.y + draw_scale * klig.position.y;
+            // 4 x 5 @ 168, 0 in atlas, 3 sprites (normal, grab, home)
 
             unsafe_kligs++;
 
