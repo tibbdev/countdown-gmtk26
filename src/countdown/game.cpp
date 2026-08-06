@@ -23,7 +23,7 @@ constexpr int GO_BGRECT_BORDER_SIZE = 4;
 constexpr int GO_BACK_BUTTON_OFFSET_X = 128;
 constexpr int GO_BACK_BUTTON_OFFSET_Y = 24;
 
-constexpr uint16_t GW_N_SECTORS = 36;
+constexpr uint16_t GW_N_SECTORS = 49;
 
 void back_button_draw(Vector2 position, bool is_hovered)
 {
@@ -88,6 +88,108 @@ void game_init(GameData &game)
         {
             tribes.push_back((KligTribes)(rand() % (uint8_t)KligTribes::KLIG_TRIBE_CNT));
         }
+        
+        // add zones
+        uint16_t n_zones = tribes.size();
+
+        new_level.zones.clear();
+
+        for (uint16_t zone_idx = 0; n_zones > zone_idx; zone_idx++)
+        {
+            ZoneData new_zone = {};
+
+            new_zone.type = ZoneData::ZoneType::Home;
+
+            new_zone.tribe = tribes[zone_idx];
+
+            new_zone.tex_coord.x += zone_idx * new_zone.tex_size.x;
+
+            if (0 == zone_idx)
+            {
+                new_zone.color = RED;
+            }
+            else if (1 == zone_idx)
+            {
+                new_zone.color = DARKBLUE;
+            }
+            else if (2 == zone_idx)
+            {
+                new_zone.color = DARKPURPLE;
+            }
+            else if (3 == zone_idx)
+            {
+                new_zone.color = BROWN;
+            }
+            else if (4 == zone_idx)
+            {
+                new_zone.color = BLACK;
+            }
+            else
+            {
+                new_zone.color = VIOLET;
+            }
+            
+            uint16_t nzone_sector = 0;
+
+            uint16_t zone_x = 0;
+            uint16_t zone_y = 0;
+
+            uint16_t sector_row_len = (uint16_t)sqrt(GW_N_SECTORS);
+            
+            bool sector_ok = true;
+
+            do
+            {
+
+                nzone_sector = rand() % GW_N_SECTORS;
+
+                zone_x = nzone_sector % sector_row_len;
+                zone_y = nzone_sector / sector_row_len;
+
+                if ((0 < zone_x) && ((sector_row_len - 1) > zone_x))
+                {
+                    if ((0 < zone_y) && ((sector_row_len - 1) > zone_y))
+                    {
+                        uint16_t sector_checks = 0;
+                        
+                        sector_checks |= sectors[nzone_sector] ? 0x0001 : 0x0000;
+                        sector_checks |= sectors[nzone_sector - 1] ? 0x0002 : 0x0000;
+                        sector_checks |= sectors[nzone_sector + 1] ? 0x0004 : 0x0000;
+                        
+                        sector_checks |= sectors[nzone_sector - sector_row_len] ? 0x0008 : 0x0000;
+                        sector_checks |= sectors[nzone_sector - 1 - sector_row_len] ? 0x0010 : 0x0000;
+                        sector_checks |= sectors[nzone_sector + 1 - sector_row_len] ? 0x0020 : 0x0000;
+
+                        sector_checks |= sectors[nzone_sector + sector_row_len] ? 0x0040 : 0x0000;
+                        sector_checks |= sectors[nzone_sector - 1 + sector_row_len] ? 0x0080 : 0x0000;
+                        sector_checks |= sectors[nzone_sector + 1 + sector_row_len] ? 0x0100 : 0x0000;
+
+                        sector_ok = (0u == sector_checks);
+
+                        if (sector_ok) // occupy that sector and the ones around it
+                        {
+                            sectors[nzone_sector]                       = true;
+                            sectors[nzone_sector - 1]                   = true;
+                            sectors[nzone_sector + 1]                   = true;
+                            sectors[nzone_sector - sector_row_len]      = true;
+                            sectors[nzone_sector - 1 - sector_row_len]  = true;
+                            sectors[nzone_sector + 1 - sector_row_len]  = true;
+                            sectors[nzone_sector + sector_row_len]      = true;
+                            sectors[nzone_sector - 1 + sector_row_len]  = true;
+                            sectors[nzone_sector + 1 + sector_row_len]  = true;
+                        }
+                    }
+                }
+            } while (!sector_ok);
+
+            uint16_t col = nzone_sector % 6;
+            uint16_t row = nzone_sector / 6;
+
+            new_zone.position.x = col * (ASSUMED_WORLD_SIZE / 6) + (ASSUMED_WORLD_SIZE / 12);
+            new_zone.position.y = row * (ASSUMED_WORLD_SIZE / 6) + (ASSUMED_WORLD_SIZE / 12);
+
+            new_level.zones.push_back(new_zone);
+        }
 
         new_level.kligs.clear();
 
@@ -150,59 +252,6 @@ void game_init(GameData &game)
             new_level.kligs.push_back(new_klig);
         }
 
-        // add zones
-        uint16_t n_zones = tribes.size();
-
-        new_level.zones.clear();
-
-        for (uint16_t zone_idx = 0; n_zones > zone_idx; zone_idx++)
-        {
-            ZoneData new_zone = {};
-
-            new_zone.type = ZoneData::ZoneType::Home;
-
-            new_zone.tribe = tribes[zone_idx];
-
-            if (0 == zone_idx)
-            {
-                new_zone.color = RED;
-            }
-            else if (1 == zone_idx)
-            {
-                new_zone.color = DARKBLUE;
-            }
-            else if (2 == zone_idx)
-            {
-                new_zone.color = DARKPURPLE;
-            }
-            else if (3 == zone_idx)
-            {
-                new_zone.color = BROWN;
-            }
-            else if (4 == zone_idx)
-            {
-                new_zone.color = BLACK;
-            }
-            else
-            {
-                new_zone.color = VIOLET;
-            }
-
-            uint16_t nzone_sector = rand() % GW_N_SECTORS;
-
-            while (sectors[nzone_sector])
-            {
-                nzone_sector = rand() % GW_N_SECTORS;
-            }
-
-            uint16_t col = nzone_sector % 6;
-            uint16_t row = nzone_sector / 6;
-
-            new_zone.position.x = col * (ASSUMED_WORLD_SIZE / 6) + (ASSUMED_WORLD_SIZE / 12);
-            new_zone.position.y = row * (ASSUMED_WORLD_SIZE / 6) + (ASSUMED_WORLD_SIZE / 12);
-
-            new_level.zones.push_back(new_zone);
-        }
 
         game.levels.push_back(new_level);
     }

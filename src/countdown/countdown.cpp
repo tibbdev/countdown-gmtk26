@@ -255,7 +255,17 @@ void countdown_draw(GameData &game, float delta_time)
     {
         if (ZoneData::ZoneType::Home == zone.type)
         {
-            DrawRectangle(world_draw_position.x + draw_scale * zone.position.x, world_draw_position.y + draw_scale * zone.position.y, draw_scale * zone.size.x, draw_scale * zone.size.y, zone.color);
+            
+            float zone_x = world_draw_position.x + draw_scale * zone.position.x;
+            float zone_y = world_draw_position.y + draw_scale * zone.position.y;
+            
+            DrawTexturePro(game.texture_atlas, 
+                {.x = zone.tex_coord.x, .y = zone.tex_coord.y, .width = zone.tex_size.x, .height = zone.tex_size.y},
+                {.x = zone_x - (zone.tex_size.x * 0.5f) , .y = zone_y - (zone.tex_size.y *  0.5f), .width = zone.size.x * draw_scale, .height = zone.size.y * draw_scale},
+                {zone.tex_size.x * 0.5f, zone.tex_size.y *  0.5f},
+                0.0f,
+                WHITE
+            );
         }
     }
 
@@ -285,17 +295,6 @@ void countdown_draw(GameData &game, float delta_time)
 
             Color tribe_colour = WHITE;
 
-            for (auto& zone : game.levels[game.level].zones)
-            {
-                if (zone.tribe == klig.tribe)
-                {
-                    tribe_colour = zone.color;
-                    break;
-                }
-            }
-
-            Color klig_colour_to_draw = klig.is_grabbed ? (klig.is_homable ? ORANGE : PINK) : (klig.is_grabbable ? LIME : WHITE);
-
             static uint16_t klig_spr_sel = 0;
             klig_spr_sel = 0;
             
@@ -315,6 +314,7 @@ void countdown_draw(GameData &game, float delta_time)
                 }
                 klig_spr_sel ^= 0x2;
             }
+
             if (0x03 == klig_spr_sel)
             {
                 klig_spr_sel ^= 0x2;
@@ -322,7 +322,7 @@ void countdown_draw(GameData &game, float delta_time)
 
             DrawTexturePro(game.texture_atlas, 
                 {.x = klig.tex_coord.x + (klig_spr_sel * klig.tex_size.x), .y = klig.tex_coord.y, .width = klig.tex_size.x, .height = klig.tex_size.y},
-                {.x = klig_x , .y = klig_y, .width = klig.tex_size.x * 4, .height = klig.tex_size.y * 4},
+                {.x = klig_x - (klig.tex_size.x * 0.5f) , .y = klig_y - (klig.tex_size.y *  0.5f), .width = klig.tex_size.x * 4, .height = klig.tex_size.y * 4},
                 {klig.tex_size.x * 0.5f, klig.tex_size.y *  0.5f},
                 0.0f,
                 WHITE

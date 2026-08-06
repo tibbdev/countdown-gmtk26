@@ -109,10 +109,13 @@ typedef struct STRUCT_KLIG_DATA
 typedef struct STRUCT_ZONE_DATA
 {
     Vector2 position = {0.0f, 0.0f};
-    Vector2 size = {44.0f, 44.0f};
+    Vector2 size = {48.0f, 48.0f};
 
     KligTribes tribe = KligTribes::Anstral;
     Color      color = RED;
+    
+    Vector2    tex_coord = {48, 0};
+    Vector2    tex_size = {24, 24};
 
     enum class ZoneType
     {
@@ -215,7 +218,7 @@ constexpr uint32_t CURSOR_SIZE                = 12;
 constexpr uint32_t BACK_BUTTON_HEIGHT         = 48;
 constexpr uint32_t BACK_BUTTON_WIDTH          = 96;
 constexpr uint32_t BACK_BUTTON_TEXT_SIZE      = 24;
-constexpr uint32_t ASSUMED_WORLD_SIZE         = 1024;
+constexpr uint32_t ASSUMED_WORLD_SIZE         = 1600;
 constexpr uint32_t COUNTDOWN_DRAW_WRLD_BORDER = 64;
 constexpr uint32_t PLAYER_SIZE                = 32;
 constexpr uint32_t GAZUMPA_SIZE               = 24;
