@@ -47,6 +47,7 @@ enum class KligState
     CountingDown,
     Safe,
     Overloaded,
+    Smuggled,
 
     KLIG_STATE_CNT
 };
@@ -58,27 +59,27 @@ enum class KligTribes : uint8_t
     Caboogla,
     Denafigie,
     Egaloop,
-    Fenagak,
-    Gedantino,
-    Helipso,
-    Isanta,
-    Jabapok,
-    Kagaroth,
-    Linta,
-    Moonag,
-    Nobani,
-    Ooodentu,
-    Pilin,
-    Quintri,
-    Relath,
-    Stoopid,
-    Thavala,
-    Ubug,
-    Vernagok,
-    Welamaji,
-    Xenarik,
-    Yelosa,
-    Zedak,
+    // Fenagak,
+    // Gedantino,
+    // Helipso,
+    // Isanta,
+    // Jabapok,
+    // Kagaroth,
+    // Linta,
+    // Moonag,
+    // Nobani,
+    // Ooodentu,
+    // Pilin,
+    // Quintri,
+    // Relath,
+    // Stoopid,
+    // Thavala,
+    // Ubug,
+    // Vernagok,
+    // Welamaji,
+    // Xenarik,
+    // Yelosa,
+    // Zedak,
 
     KLIG_TRIBE_CNT
 };
@@ -90,6 +91,8 @@ typedef struct STRUCT_KLIG_DATA
     Vector2    start_position = { 0.0f, 0.0f };
     KligTribes tribe = KligTribes::Anstral;
     Color      color;
+    Vector2    tex_coord = {168, 0};
+    Vector2    tex_size = {4, 5};
     
     bool is_grabbed = false;
     bool is_home = false;
@@ -184,6 +187,8 @@ typedef struct STRUCT_GAME_USER_INTPUTS
 typedef struct STRUCT_GAME_DATA
 {
     GameState state = GameState::Welcome;
+    
+    Texture2D  texture_atlas;
 
     UserInputs inputs;
     UserInputs prev_inputs;

@@ -40,6 +40,7 @@ void game_init(GameData &game)
 {
     game.levels_completed = 0;
     game.levels.clear();
+    game.texture_atlas = LoadTexture(ASSETS_PATH "img/atlas.png");
 
     { // Level 1 is always the same
         LevelData new_level = {};
@@ -48,6 +49,7 @@ void game_init(GameData &game)
 
         KligData klig = {};
         klig.position = { 0.6f * ASSUMED_WORLD_SIZE, 0.33f * ASSUMED_WORLD_SIZE };
+
         new_level.kligs.push_back(klig);
 
         ZoneData home_zone = {};
@@ -99,6 +101,8 @@ void game_init(GameData &game)
             {
                 tribe_idx = klig_idx;
             }
+
+            new_klig.tex_coord.y = klig_idx * new_klig.tex_size.y;
 
             new_klig.tribe = tribes[tribe_idx];
 

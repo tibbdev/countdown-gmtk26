@@ -294,21 +294,18 @@ void countdown_draw(GameData &game, float delta_time)
                 }
             }
 
-            Color klig_colour_to_draw = klig.is_grabbed ? (klig.is_homable ? ORANGE : PINK) : (klig.is_grabbable ? LIME : tribe_colour);
+            Color klig_colour_to_draw = klig.is_grabbed ? (klig.is_homable ? ORANGE : PINK) : (klig.is_grabbable ? LIME : WHITE);
 
-            DrawCircleV({ klig_x, klig_y }, draw_scale * KLIG_SIZE, klig_colour_to_draw);
-
+            static uint16_t klig_spr_sel = 0;
+            klig_spr_sel = 0;
+            
             if (klig.is_grabbable && !klig.is_grabbed)
             {
                 if (game.level < 5)
                 {
                     DrawText("GrAB NOw!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f) - 248, 24, LIME);
                 }
-
-                DrawCircleLinesV({ klig_x, klig_y }, (draw_scale * KLIG_SIZE),     klig.color);
-                DrawCircleLinesV({ klig_x, klig_y }, (draw_scale * KLIG_SIZE) + 1, klig.color);
-
-                DrawCircleLinesV({ klig_x, klig_y }, 2 + draw_scale * KLIG_SIZE, DARKGREEN);
+                klig_spr_sel ^= 0x1;
             }
             else if (klig.is_homable && !klig.is_home)
             {
@@ -316,18 +313,26 @@ void countdown_draw(GameData &game, float delta_time)
                 {
                     DrawText("REleAsE nOW!", COUNTDOWN_DRAW_WORLD_WIDTH_RATIO * g_window_data.width + 16, (g_window_data.height * 0.5f) - 220, 24, ORANGE);
                 }
-
-                DrawCircleLinesV({ klig_x, klig_y }, (draw_scale * KLIG_SIZE), klig.color);
-                DrawCircleLinesV({ klig_x, klig_y }, (draw_scale * KLIG_SIZE) + 1, klig.color);
-
-                DrawCircleLinesV({ klig_x, klig_y }, 2 + draw_scale * KLIG_SIZE, DARKBROWN);
+                klig_spr_sel ^= 0x2;
             }
+            if (0x03 == klig_spr_sel)
+            {
+                klig_spr_sel ^= 0x2;
+            }
+
+            DrawTexturePro(game.texture_atlas, 
+                {.x = klig.tex_coord.x + (klig_spr_sel * klig.tex_size.x), .y = klig.tex_coord.y, .width = klig.tex_size.x, .height = klig.tex_size.y},
+                {.x = klig_x , .y = klig_y, .width = klig.tex_size.x * 4, .height = klig.tex_size.y * 4},
+                {klig.tex_size.x * 0.5f, klig.tex_size.y *  0.5f},
+                0.0f,
+                WHITE
+            );
 
             if (!klig.is_grabbed)
             {
                 std::stringstream klig_cnt_sstr;
                 klig_cnt_sstr << klig.count;
-                DrawText(klig_cnt_sstr.str().c_str(), 1 + klig_x - (0.5f * MeasureText(klig_cnt_sstr.str().c_str(), 0.96f * KLIG_SIZE)), 1 + klig_y - (KLIG_SIZE * 0.48f), 0.96f * KLIG_SIZE, DARKPURPLE);
+                DrawText(klig_cnt_sstr.str().c_str(), 1 + klig_x - (0.5f * MeasureText(klig_cnt_sstr.str().c_str(), 0.96f * KLIG_SIZE)), 1 + klig_y - (KLIG_SIZE * 0.48f), 0.96f * KLIG_SIZE, RAYWHITE);
             }
         }
     }
